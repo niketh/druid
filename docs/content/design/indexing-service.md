@@ -58,6 +58,8 @@ Task segments can be retrieved via GET requests to:
 
 ```
 http://<OVERLORD_IP>:<port>/druid/indexer/v1/task/{taskId}/segments
+hello
+123
 ```
 
 #### Overlord Console
