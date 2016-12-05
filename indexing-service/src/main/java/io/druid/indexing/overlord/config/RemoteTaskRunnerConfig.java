@@ -105,8 +105,8 @@ public class RemoteTaskRunnerConfig extends WorkerTaskRunnerConfig
     return workerBlackListBackoffTime;
   }
 
-  public void setTaskBlackListBackoffTimeMillis(Period taskBlackListBackoffTime) {
-    this.workerBlackListBackoffTime = taskBlackListBackoffTime;
+  public void setWorkerBlackListBackoffTime(Period workerBlackListBackoffTime) {
+    this.workerBlackListBackoffTime = workerBlackListBackoffTime;
   }
 
   public Period getWorkerBlackListCleanupPeriod() {
@@ -195,8 +195,8 @@ public class RemoteTaskRunnerConfig extends WorkerTaskRunnerConfig
            ", taskShutdownLinkTimeout=" + taskShutdownLinkTimeout +
            ", pendingTasksRunnerNumThreads=" + pendingTasksRunnerNumThreads +
            ", maxRetriesBeforeBlacklist=" + maxRetriesBeforeBlacklist +
-           ", taskBlackListBackoffTimeMillis=" + workerBlackListBackoffTime +
-           ", taskBlackListCleanupPeriod=" + workerBlackListCleanupPeriod +
+           ", workerBlackListBackoffTime=" + workerBlackListBackoffTime +
+           ", workerBlackListCleanupPeriod=" + workerBlackListCleanupPeriod +
            ", maxPercentageBlacklistWorkers= " + maxPercentageBlacklistWorkers +
            '}';
   }
