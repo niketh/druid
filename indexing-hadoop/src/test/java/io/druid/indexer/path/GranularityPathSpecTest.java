@@ -187,13 +187,13 @@ public class GranularityPathSpecTest
             new AggregatorFactory[0],
             new UniformGranularitySpec(
                 Granularity.DAY,
-                QueryGranularity.ALL,
+                QueryGranularities.ALL,
                 ImmutableList.of(new Interval("2015-01-01T11Z/2015-01-02T05Z"))
             ),
             jsonMapper
         ),
         new HadoopIOConfig(null, null, null),
-        new HadoopTuningConfig(null, null, null, null, null, null, false, false, false, false, null, false, false, null, null, null)
+        new HadoopTuningConfig(null, null, null, null, null, null, false, false, false, false, null, false, false, null, null, null, false, false)
     );
 
     granularityPathSpec.setDataGranularity(Granularity.HOUR);
