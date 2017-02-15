@@ -94,7 +94,7 @@ public class TaskSerdeTest
                 jsonMapper
             ),
             new IndexTask.IndexIOConfig(new LocalFirehoseFactory(new File("lol"), "rofl", null)),
-            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false)
+            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false, false)
         ),
         jsonMapper,
         null
@@ -135,7 +135,7 @@ public class TaskSerdeTest
                 jsonMapper
             ),
             new IndexTask.IndexIOConfig(new LocalFirehoseFactory(new File("lol"), "rofl", null)),
-            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false)
+            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false, false)
         ),
         jsonMapper,
         null
@@ -341,7 +341,8 @@ public class TaskSerdeTest
                 0,
                 0,
                 true,
-                null
+                null,
+                false
             )
         ),
         null

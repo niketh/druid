@@ -45,6 +45,7 @@ public class HadoopTuningConfig implements TuningConfig
   private static final boolean DEFAULT_USE_COMBINER = false;
   private static final Boolean DEFAULT_BUILD_V9_DIRECTLY = Boolean.TRUE;
   private static final int DEFAULT_NUM_BACKGROUND_PERSIST_THREADS = 0;
+  private static final Boolean DEFAULT_USE_LUCENE_INDEX = Boolean.FALSE;
 
   public static HadoopTuningConfig makeDefaultTuningConfig()
   {
@@ -66,7 +67,8 @@ public class HadoopTuningConfig implements TuningConfig
         DEFAULT_BUILD_V9_DIRECTLY,
         DEFAULT_NUM_BACKGROUND_PERSIST_THREADS,
         false,
-        false
+        false,
+        DEFAULT_USE_LUCENE_INDEX
     );
   }
 
@@ -87,6 +89,7 @@ public class HadoopTuningConfig implements TuningConfig
   private final int numBackgroundPersistThreads;
   private final boolean forceExtendableShardSpecs;
   private final boolean useExplicitVersion;
+  private final boolean useLuceneIndex;
 
   @JsonCreator
   public HadoopTuningConfig(
@@ -108,7 +111,8 @@ public class HadoopTuningConfig implements TuningConfig
       final @JsonProperty("buildV9Directly") Boolean buildV9Directly,
       final @JsonProperty("numBackgroundPersistThreads") Integer numBackgroundPersistThreads,
       final @JsonProperty("forceExtendableShardSpecs") boolean forceExtendableShardSpecs,
-      final @JsonProperty("useExplicitVersion") boolean useExplicitVersion
+      final @JsonProperty("useExplicitVersion") boolean useExplicitVersion,
+      final @JsonProperty("useLuceneIndex") boolean useLuceneIndex
   )
   {
     this.workingPath = workingPath;
@@ -135,6 +139,7 @@ public class HadoopTuningConfig implements TuningConfig
     this.forceExtendableShardSpecs = forceExtendableShardSpecs;
     Preconditions.checkArgument(this.numBackgroundPersistThreads >= 0, "Not support persistBackgroundCount < 0");
     this.useExplicitVersion = useExplicitVersion;
+    this.useLuceneIndex = useLuceneIndex;
   }
 
   @JsonProperty
@@ -239,6 +244,12 @@ public class HadoopTuningConfig implements TuningConfig
     return useExplicitVersion;
   }
 
+  @JsonProperty
+  public boolean getUseLuceneIndex()
+  {
+    return useLuceneIndex;
+  }
+
   public HadoopTuningConfig withWorkingPath(String path)
   {
     return new HadoopTuningConfig(
@@ -259,7 +270,8 @@ public class HadoopTuningConfig implements TuningConfig
         buildV9Directly,
         numBackgroundPersistThreads,
         forceExtendableShardSpecs,
-        useExplicitVersion
+        useExplicitVersion,
+        useLuceneIndex
     );
   }
 
@@ -283,7 +295,8 @@ public class HadoopTuningConfig implements TuningConfig
         buildV9Directly,
         numBackgroundPersistThreads,
         forceExtendableShardSpecs,
-        useExplicitVersion
+        useExplicitVersion,
+        useLuceneIndex
     );
   }
 
@@ -307,7 +320,8 @@ public class HadoopTuningConfig implements TuningConfig
         buildV9Directly,
         numBackgroundPersistThreads,
         forceExtendableShardSpecs,
-        useExplicitVersion
+        useExplicitVersion,
+        useLuceneIndex
     );
   }
 }

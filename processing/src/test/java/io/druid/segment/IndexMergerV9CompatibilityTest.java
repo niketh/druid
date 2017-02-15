@@ -170,7 +170,8 @@ public class IndexMergerV9CompatibilityTest
         JodaUtils.MIN_INSTANT,
         QueryGranularities.NONE,
         DEFAULT_AGG_FACTORIES,
-        1000000
+        1000000,
+        true
     );
     toPersist.getMetadata().put("key", "value");
     for (InputRow event : events) {

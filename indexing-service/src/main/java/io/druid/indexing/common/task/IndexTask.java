@@ -129,7 +129,8 @@ public class IndexTask extends AbstractFixedIntervalTask
       ShardSpec shardSpec,
       int rowFlushBoundary,
       IndexSpec indexSpec,
-      boolean buildV9Directly
+      boolean buildV9Directly,
+      boolean useLuceneIndex
   )
   {
     return new RealtimeTuningConfig(
@@ -146,7 +147,8 @@ public class IndexTask extends AbstractFixedIntervalTask
         0,
         0,
         true,
-        null
+        null,
+        useLuceneIndex
     );
   }
 
@@ -399,7 +401,8 @@ public class IndexTask extends AbstractFixedIntervalTask
             shardSpecForPublishing,
             myRowFlushBoundary,
             ingestionSchema.getTuningConfig().getIndexSpec(),
-            ingestionSchema.tuningConfig.getBuildV9Directly()
+            ingestionSchema.tuningConfig.getBuildV9Directly(),
+            ingestionSchema.tuningConfig.getUseLuceneIndex()
         ),
         metrics
     );
@@ -472,7 +475,7 @@ public class IndexTask extends AbstractFixedIntervalTask
 
       this.dataSchema = dataSchema;
       this.ioConfig = ioConfig;
-      this.tuningConfig = tuningConfig == null ? new IndexTuningConfig(0, 0, null, null, null, false) : tuningConfig;
+      this.tuningConfig = tuningConfig == null ? new IndexTuningConfig(0, 0, null, null, null, false, false) : tuningConfig;
     }
 
     @Override
@@ -531,6 +534,7 @@ public class IndexTask extends AbstractFixedIntervalTask
     private final IndexSpec indexSpec;
     private final Boolean buildV9Directly;
     private final boolean forceExtendableShardSpecs;
+    private final boolean useLuceneIndex;
 
     @JsonCreator
     public IndexTuningConfig(
@@ -539,7 +543,8 @@ public class IndexTask extends AbstractFixedIntervalTask
         @JsonProperty("numShards") @Nullable Integer numShards,
         @JsonProperty("indexSpec") @Nullable IndexSpec indexSpec,
         @JsonProperty("buildV9Directly") Boolean buildV9Directly,
-        @JsonProperty("forceExtendableShardSpecs") boolean forceExtendableShardSpecs
+        @JsonProperty("forceExtendableShardSpecs") boolean forceExtendableShardSpecs,
+        @JsonProperty("useLuceneIndex") boolean useLuceneIndex
     )
     {
       this.targetPartitionSize = targetPartitionSize == 0 ? DEFAULT_TARGET_PARTITION_SIZE : targetPartitionSize;
@@ -553,6 +558,7 @@ public class IndexTask extends AbstractFixedIntervalTask
       );
       this.buildV9Directly = buildV9Directly == null ? DEFAULT_BUILD_V9_DIRECTLY : buildV9Directly;
       this.forceExtendableShardSpecs = forceExtendableShardSpecs;
+      this.useLuceneIndex = useLuceneIndex;
     }
 
     @JsonProperty
@@ -589,6 +595,12 @@ public class IndexTask extends AbstractFixedIntervalTask
     public boolean isForceExtendableShardSpecs()
     {
       return forceExtendableShardSpecs;
+    }
+
+    @JsonProperty
+    public boolean getUseLuceneIndex()
+    {
+      return useLuceneIndex;
     }
   }
 }

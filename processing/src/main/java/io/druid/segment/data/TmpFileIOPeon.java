@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -69,6 +71,22 @@ public class TmpFileIOPeon implements IOPeon
     final File retFile = createdFiles.get(filename);
 
     return retFile == null ? null : new FileInputStream(retFile);
+  }
+
+  @Override
+  public File createDir(String filename) throws IOException {
+    File retFile = createdFiles.get(filename);
+    if(retFile == null){
+      retFile = Files.createTempDirectory(filename).toFile();
+    } else {
+      throw new IOException("tmp file conflicts, file[" + filename + "] already exist!");
+    }
+    return retFile;
+  }
+
+  @Override
+  public void addFile(String filename, Path path) {
+    createdFiles.put(filename, path.toFile());
   }
 
   @Override

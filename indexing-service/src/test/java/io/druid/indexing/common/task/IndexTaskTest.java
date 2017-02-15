@@ -148,7 +148,8 @@ public class IndexTaskTest
                 null,
                 indexSpec,
                 null,
-                false
+                false,
+                true
             )
         ),
         jsonMapper,
@@ -234,6 +235,7 @@ public class IndexTaskTest
                 null,
                 indexSpec,
                 null,
+                true,
                 true
             )
         ),
@@ -451,13 +453,15 @@ public class IndexTaskTest
         null,
         new IndexSpec(),
         null,
-        false
+        false,
+        true
     );
     RealtimeTuningConfig realtimeTuningConfig = IndexTask.convertTuningConfig(
         spec,
         config.getRowFlushBoundary(),
         config.getIndexSpec(),
-        config.getBuildV9Directly()
+        config.getBuildV9Directly(),
+        config.getUseLuceneIndex()
     );
     Assert.assertEquals(realtimeTuningConfig.getMaxRowsInMemory(), config.getRowFlushBoundary());
     Assert.assertEquals(realtimeTuningConfig.getShardSpec(), spec);

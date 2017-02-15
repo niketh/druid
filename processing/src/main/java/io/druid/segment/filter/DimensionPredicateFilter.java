@@ -29,6 +29,7 @@ import io.druid.query.filter.DruidPredicateFactory;
 import io.druid.query.filter.Filter;
 import io.druid.query.filter.ValueMatcher;
 import io.druid.query.filter.ValueMatcherFactory;
+import io.druid.segment.column.LuceneIndexEncodedColumn;
 
 /**
  */
@@ -89,7 +90,12 @@ public class DimensionPredicateFilter implements Filter
   @Override
   public ImmutableBitmap getBitmapIndex(final BitmapIndexSelector selector)
   {
-    return Filters.matchPredicate(dimension, selector, predicateFactory.makeStringPredicate());
+    LuceneIndexEncodedColumn luceneIndexEncodedColumn = selector.getLuceneIndexEncodedColumn(dimension);
+    if (luceneIndexEncodedColumn != null) {
+      return null;
+    } else {
+      return Filters.matchPredicate(dimension, selector, predicateFactory.makeStringPredicate());
+    }
   }
 
   @Override

@@ -24,6 +24,8 @@ import io.druid.collections.bitmap.BitmapFactory;
 import io.druid.collections.bitmap.ImmutableBitmap;
 import io.druid.segment.column.BitmapIndex;
 import io.druid.segment.data.GenericIndexed;
+import io.druid.segment.data.Indexed;
+import io.druid.segment.indexer.LuceneIndex;
 
 /**
  */
@@ -31,17 +33,32 @@ public class BitmapIndexColumnPartSupplier implements Supplier<BitmapIndex>
 {
   private final BitmapFactory bitmapFactory;
   private final GenericIndexed<ImmutableBitmap> bitmaps;
-  private final GenericIndexed<String> dictionary;
+  private final Indexed<String> dictionary;
+  private final LuceneIndex luceneIndex;
 
   public BitmapIndexColumnPartSupplier(
       BitmapFactory bitmapFactory,
       GenericIndexed<ImmutableBitmap> bitmaps,
-      GenericIndexed<String> dictionary
+      Indexed<String> dictionary
   )
   {
     this.bitmapFactory = bitmapFactory;
     this.bitmaps = bitmaps;
     this.dictionary = dictionary;
+    this.luceneIndex = null;
+  }
+
+  public BitmapIndexColumnPartSupplier(
+      BitmapFactory bitmapFactory,
+      GenericIndexed<ImmutableBitmap> bitmaps,
+      Indexed<String> dictionary,
+      LuceneIndex luceneIndex
+  )
+  {
+    this.bitmapFactory = bitmapFactory;
+    this.bitmaps = bitmaps;
+    this.dictionary = dictionary;
+    this.luceneIndex = luceneIndex;
   }
 
   @Override

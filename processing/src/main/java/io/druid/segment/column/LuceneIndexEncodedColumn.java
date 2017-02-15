@@ -19,18 +19,31 @@
 
 package io.druid.segment.column;
 
+import io.druid.segment.data.CachingIndexed;
+import io.druid.segment.data.IndexedInts;
+import io.druid.segment.data.IndexedMultivalue;
+import io.druid.segment.indexer.LuceneIndex;
+
+import java.util.List;
+
 /**
- */
-public interface ColumnCapabilities
+*/
+public class LuceneIndexEncodedColumn extends SimpleDictionaryEncodedColumn
 {
-  public ValueType getType();
+  private final LuceneIndex luceneIndex;
 
-  public boolean isLuceneIndexed();
-  public boolean isDictionaryEncoded();
-  public boolean isRunLengthEncoded();
-  public boolean hasBitmapIndexes();
-  public boolean hasSpatialIndexes();
-  public boolean hasMultipleValues();
+  public LuceneIndexEncodedColumn(
+      IndexedInts singleValueColumn,
+      IndexedMultivalue<IndexedInts> multiValueColumn,
+      CachingIndexed<String> cachedLookups,
+      LuceneIndex luceneIndex
+  )
+  {
+    super(singleValueColumn, multiValueColumn, cachedLookups);
+    this.luceneIndex = luceneIndex;
+  }
 
-  public ColumnCapabilitiesImpl merge(ColumnCapabilities other);
+  public List<Integer> getLikeMatch(String value){
+    return luceneIndex.getLikeMatch(value);
+  }
 }

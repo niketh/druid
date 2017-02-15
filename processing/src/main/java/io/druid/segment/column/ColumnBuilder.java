@@ -21,6 +21,7 @@ package io.druid.segment.column;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import io.druid.segment.indexer.LuceneIndex;
 
 /**
  */
@@ -30,6 +31,7 @@ public class ColumnBuilder
   private boolean hasMultipleValues = false;
 
   private Supplier<DictionaryEncodedColumn> dictionaryEncodedColumn = null;
+  private Supplier<LuceneIndexEncodedColumn> luceneIndexEncodedColumn = null;
   private Supplier<RunLengthColumn> runLengthColumn = null;
   private Supplier<GenericColumn> genericColumn = null;
   private Supplier<ComplexColumn> complexColumn = null;
@@ -51,6 +53,12 @@ public class ColumnBuilder
   public ColumnBuilder setDictionaryEncodedColumn(Supplier<DictionaryEncodedColumn> dictionaryEncodedColumn)
   {
     this.dictionaryEncodedColumn = dictionaryEncodedColumn;
+    return this;
+  }
+
+  public ColumnBuilder setLuceneIndexEncodedColumn(Supplier<LuceneIndexEncodedColumn> luceneIndexEncodedColumn)
+  {
+    this.luceneIndexEncodedColumn = luceneIndexEncodedColumn;
     return this;
   }
 
@@ -88,21 +96,42 @@ public class ColumnBuilder
   {
     Preconditions.checkState(type != null, "Type must be set.");
 
-    return new SimpleColumn(
-        new ColumnCapabilitiesImpl()
-            .setType(type)
-            .setDictionaryEncoded(dictionaryEncodedColumn != null)
-            .setHasBitmapIndexes(bitmapIndex != null)
-            .setHasSpatialIndexes(spatialIndex != null)
-            .setRunLengthEncoded(runLengthColumn != null)
-            .setHasMultipleValues(hasMultipleValues)
-        ,
-        dictionaryEncodedColumn,
-        runLengthColumn,
-        genericColumn,
-        complexColumn,
-        bitmapIndex,
-        spatialIndex
-    );
+    if(luceneIndexEncodedColumn != null){
+      return new LuceneColumn(
+          new ColumnCapabilitiesImpl()
+              .setType(type)
+              .setDictionaryEncoded(dictionaryEncodedColumn != null)
+              .setLuceneIndexed(luceneIndexEncodedColumn != null)
+              .setHasBitmapIndexes(bitmapIndex != null)
+              .setHasSpatialIndexes(spatialIndex != null)
+              .setRunLengthEncoded(runLengthColumn != null)
+              .setHasMultipleValues(hasMultipleValues)
+          ,
+          dictionaryEncodedColumn,
+          luceneIndexEncodedColumn,
+          runLengthColumn,
+          genericColumn,
+          complexColumn,
+          bitmapIndex,
+          spatialIndex
+      );
+    } else {
+      return new SimpleColumn(
+          new ColumnCapabilitiesImpl()
+              .setType(type)
+              .setDictionaryEncoded(dictionaryEncodedColumn != null)
+              .setHasBitmapIndexes(bitmapIndex != null)
+              .setHasSpatialIndexes(spatialIndex != null)
+              .setRunLengthEncoded(runLengthColumn != null)
+              .setHasMultipleValues(hasMultipleValues)
+          ,
+          dictionaryEncodedColumn,
+          runLengthColumn,
+          genericColumn,
+          complexColumn,
+          bitmapIndex,
+          spatialIndex
+      );
+    }
   }
 }

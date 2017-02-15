@@ -56,6 +56,7 @@ public class IncrementalIndexMultiValueSpecTest
         QueryGranularities.ALL,
         dimensionsSpec,
         new AggregatorFactory[0],
+        false,
         false
     );
     Map<String, Object> map = new HashMap<String, Object>()

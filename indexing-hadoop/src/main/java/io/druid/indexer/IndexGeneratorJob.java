@@ -232,6 +232,7 @@ public class IndexGeneratorJob implements Jobby
         .withQueryGranularity(config.getSchema().getDataSchema().getGranularitySpec().getQueryGranularity())
         .withMetrics(aggs)
         .withRollup(config.getSchema().getDataSchema().getGranularitySpec().isRollup())
+        .withLuceneIndex(config.getUseLuceneIndex())
         .build();
 
     OnheapIncrementalIndex newIndex = new OnheapIncrementalIndex(

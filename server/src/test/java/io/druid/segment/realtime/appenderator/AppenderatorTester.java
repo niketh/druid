@@ -135,7 +135,8 @@ public class AppenderatorTester implements AutoCloseable
         0,
         0,
         null,
-        null
+        null,
+        false
     );
 
     metrics = new FireDepartmentMetrics();

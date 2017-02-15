@@ -120,6 +120,31 @@ public class OnheapIncrementalIndex extends IncrementalIndex<Aggregator>
   public OnheapIncrementalIndex(
       long minTimestamp,
       QueryGranularity gran,
+      boolean rollup,
+      DimensionsSpec dimensionsSpec,
+      AggregatorFactory[] metrics,
+      int maxRowCount,
+      boolean useLuceneIndex
+  )
+  {
+    this(
+        new IncrementalIndexSchema.Builder().withMinTimestamp(minTimestamp)
+            .withQueryGranularity(gran)
+            .withDimensionsSpec(dimensionsSpec)
+            .withMetrics(metrics)
+            .withRollup(rollup)
+            .withLuceneIndex(useLuceneIndex)
+            .build(),
+        true,
+        true,
+        true,
+        maxRowCount
+    );
+  }
+
+  public OnheapIncrementalIndex(
+      long minTimestamp,
+      QueryGranularity gran,
       final AggregatorFactory[] metrics,
       int maxRowCount
   )
@@ -131,6 +156,25 @@ public class OnheapIncrementalIndex extends IncrementalIndex<Aggregator>
         null,
         metrics,
         maxRowCount
+    );
+  }
+
+  public OnheapIncrementalIndex(
+      long minTimestamp,
+      QueryGranularity gran,
+      final AggregatorFactory[] metrics,
+      int maxRowCount,
+      boolean useLuceneIndex
+  )
+  {
+    this(
+        minTimestamp,
+        gran,
+        IncrementalIndexSchema.DEFAULT_ROLLUP,
+        null,
+        metrics,
+        maxRowCount,
+        useLuceneIndex
     );
   }
 

@@ -39,7 +39,7 @@ import java.util.Arrays;
 /**
  * Streams arrays of objects out in the binary format described by GenericIndexed
  */
-public class GenericIndexedWriter<T> implements Closeable
+public class GenericIndexedWriter<T> implements GenericWriter<T>,Closeable
 {
   private final IOPeon ioPeon;
   private final String filenameBase;
@@ -63,12 +63,14 @@ public class GenericIndexedWriter<T> implements Closeable
     this.strategy = strategy;
   }
 
+  @Override
   public void open() throws IOException
   {
     headerOut = new CountingOutputStream(ioPeon.makeOutputStream(makeFilename("header")));
     valuesOut = new CountingOutputStream(ioPeon.makeOutputStream(makeFilename("values")));
   }
 
+  @Override
   public void write(T objectToWrite) throws IOException
   {
     if (objectsSorted && prevObject != null && strategy.compare(prevObject, objectToWrite) >= 0) {
@@ -123,6 +125,7 @@ public class GenericIndexedWriter<T> implements Closeable
     }
   }
 
+  @Override
   public long getSerializedSize()
   {
     return 2 +                    // version and sorted flag
@@ -132,6 +135,7 @@ public class GenericIndexedWriter<T> implements Closeable
            valuesOut.getCount();  // value length
   }
 
+  @Override
   public InputSupplier<InputStream> combineStreams()
   {
     // ByteSource.concat is only available in guava 15 and higher
@@ -158,6 +162,7 @@ public class GenericIndexedWriter<T> implements Closeable
     );
   }
 
+  @Override
   public void writeToChannel(WritableByteChannel channel) throws IOException
   {
     try (final ReadableByteChannel from = Channels.newChannel(combineStreams().getInput())) {

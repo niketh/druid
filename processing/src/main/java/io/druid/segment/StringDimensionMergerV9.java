@@ -52,7 +52,9 @@ import io.druid.segment.data.IndexedRTree;
 import io.druid.segment.data.ListIndexed;
 import io.druid.segment.data.VSizeIndexedIntsWriter;
 import io.druid.segment.data.VSizeIndexedWriter;
+import io.druid.segment.indexer.LuceneWriter;
 import io.druid.segment.serde.DictionaryEncodedColumnPartSerde;
+import io.druid.segment.serde.LuceneIndexedColumnPartSerde;
 import it.unimi.dsi.fastutil.ints.AbstractIntIterator;
 import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -79,6 +81,7 @@ public class StringDimensionMergerV9 implements DimensionMergerV9<int[]>
 
   protected String dimensionName;
   protected GenericIndexedWriter<String> dictionaryWriter;
+  protected LuceneWriter luceneWriter;
   protected GenericIndexedWriter<ImmutableBitmap> bitmapWriter;
   protected ByteBufferWriter<ImmutableRTree> spatialWriter;
   protected ArrayList<IntBuffer> dimConversions;
@@ -130,6 +133,7 @@ public class StringDimensionMergerV9 implements DimensionMergerV9<int[]>
     int numMergeIndex = 0;
     Indexed<String> dimValueLookup = null;
     Indexed<String>[] dimValueLookups = new Indexed[adapters.size() + 1];
+
     for (int i = 0; i < adapters.size(); i++) {
       Indexed<String> dimValues = (Indexed) adapters.get(i).getDimValueLookup(dimensionName);
       if (!isNullColumn(dimValues)) {
@@ -159,10 +163,11 @@ public class StringDimensionMergerV9 implements DimensionMergerV9<int[]>
 
     String dictFilename = String.format("%s.dim_values", dimensionName);
     dictionaryWriter = new GenericIndexedWriter<>(
-        ioPeon,
-        dictFilename,
-        GenericIndexed.STRING_STRATEGY
+            ioPeon,
+            dictFilename,
+            GenericIndexed.STRING_STRATEGY
     );
+
     dictionaryWriter.open();
 
     cardinality = 0;
@@ -317,6 +322,13 @@ public class StringDimensionMergerV9 implements DimensionMergerV9<int[]>
         tree = new RTree(2, new LinearGutmanSplitStrategy(0, 50, bmpFactory), bmpFactory);
       }
 
+      if(capabilities.isLuceneIndexed()) {
+        String luceneDirName = String.format("lucene%s_dim_values", dimensionName);
+        String luceneDirPath = ioPeon.createDir(luceneDirName).getAbsolutePath() + "/dir";
+        luceneWriter = new LuceneWriter(ioPeon, luceneDirPath, dimensionName);
+        luceneWriter.open();
+      }
+
       IndexSeeker[] dictIdSeeker = toIndexSeekers(adapters, dimConversions, dimensionName);
 
       //Iterate all dim values's dictionary id in ascending order which in line with dim values's compare result.
@@ -335,6 +347,13 @@ public class StringDimensionMergerV9 implements DimensionMergerV9<int[]>
             nullRowsBitmap,
             bitmapWriter
         );
+      }
+
+      if(luceneWriter != null) {
+        for (int dictId = 0; dictId < dimVals.size(); dictId++) {
+          luceneWriter.write(dimVals.get(dictId));
+        }
+        luceneWriter.close();
       }
 
       if (hasSpatial) {
@@ -433,21 +452,45 @@ public class StringDimensionMergerV9 implements DimensionMergerV9<int[]>
     final ColumnDescriptor.Builder builder = ColumnDescriptor.builder();
     builder.setValueType(ValueType.STRING);
     builder.setHasMultipleValues(hasMultiValue);
-    final DictionaryEncodedColumnPartSerde.SerializerBuilder partBuilder = DictionaryEncodedColumnPartSerde
-        .serializerBuilder()
-        .withDictionary(dictionaryWriter)
-        .withValue(
-            encodedValueWriter,
-            hasMultiValue,
-            compressionStrategy != CompressedObjectStrategy.CompressionStrategy.UNCOMPRESSED
-        )
-        .withBitmapSerdeFactory(bitmapSerdeFactory)
-        .withBitmapIndex(bitmapWriter)
-        .withSpatialIndex(spatialWriter)
-        .withByteOrder(IndexIO.BYTE_ORDER);
-    final ColumnDescriptor serdeficator = builder
-        .addSerde(partBuilder.build())
-        .build();
+
+    final ColumnDescriptor serdeficator;
+
+    if(luceneWriter != null){
+      final LuceneIndexedColumnPartSerde.SerializerBuilder partBuilder = LuceneIndexedColumnPartSerde
+              .serializerBuilder()
+              .withLuceneIndex(luceneWriter)
+              .withDictionary(dictionaryWriter)
+              .withValue(
+                      encodedValueWriter,
+                      hasMultiValue,
+                      compressionStrategy != CompressedObjectStrategy.CompressionStrategy.UNCOMPRESSED
+              )
+              .withBitmapSerdeFactory(bitmapSerdeFactory)
+              .withBitmapIndex(bitmapWriter)
+              .withSpatialIndex(spatialWriter)
+              .withByteOrder(IndexIO.BYTE_ORDER);
+
+      serdeficator = builder
+              .addSerde(partBuilder.build())
+              .build();
+    } else {
+      final DictionaryEncodedColumnPartSerde.SerializerBuilder partBuilder = DictionaryEncodedColumnPartSerde
+              .serializerBuilder()
+              .withDictionary(dictionaryWriter)
+              .withValue(
+                      encodedValueWriter,
+                      hasMultiValue,
+                      compressionStrategy != CompressedObjectStrategy.CompressionStrategy.UNCOMPRESSED
+              )
+              .withBitmapSerdeFactory(bitmapSerdeFactory)
+              .withBitmapIndex(bitmapWriter)
+              .withSpatialIndex(spatialWriter)
+              .withByteOrder(IndexIO.BYTE_ORDER);
+
+      serdeficator = builder
+              .addSerde(partBuilder.build())
+              .build();
+    }
 
     //log.info("Completed dimension column[%s] in %,d millis.", dimensionName, System.currentTimeMillis() - dimStartTime);
 

@@ -29,9 +29,11 @@ import io.druid.query.filter.LikeDimFilter;
 import io.druid.query.filter.ValueMatcher;
 import io.druid.query.filter.ValueMatcherFactory;
 import io.druid.segment.column.BitmapIndex;
+import io.druid.segment.column.LuceneIndexEncodedColumn;
 import io.druid.segment.data.Indexed;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class LikeFilter implements Filter
 {
@@ -68,58 +70,96 @@ public class LikeFilter implements Filter
       // search for start, end indexes in the bitmaps; then include all matching bitmaps between those points
       final Indexed<String> dimValues = selector.getDimensionValues(dimension);
 
-      final String lower = Strings.nullToEmpty(likeMatcher.getPrefix());
-      final String upper = Strings.nullToEmpty(likeMatcher.getPrefix()) + Character.MAX_VALUE;
-      final int startIndex; // inclusive
-      final int endIndex; // exclusive
+      // Take advantage of Lucene index
+      LuceneIndexEncodedColumn luceneIndexEncodedColumn = selector.getLuceneIndexEncodedColumn(dimension);
+      if(luceneIndexEncodedColumn != null){
+        final List<Integer> matchedDocs = luceneIndexEncodedColumn.getLikeMatch(likeMatcher.getRegex());
 
-      final int lowerFound = bitmapIndex.getIndex(lower);
-      startIndex = lowerFound >= 0 ? lowerFound : -(lowerFound + 1);
-
-      final int upperFound = bitmapIndex.getIndex(upper);
-      endIndex = upperFound >= 0 ? upperFound + 1 : -(upperFound + 1);
-
-      // Union bitmaps for all matching dimension values in range.
-      // Use lazy iterator to allow unioning bitmaps one by one and avoid materializing all of them at once.
-      return selector.getBitmapFactory().union(
-          new Iterable<ImmutableBitmap>()
-          {
-            @Override
-            public Iterator<ImmutableBitmap> iterator()
+        return selector.getBitmapFactory().union(
+            new Iterable<ImmutableBitmap>()
             {
-              return new Iterator<ImmutableBitmap>()
+              @Override
+              public Iterator<ImmutableBitmap> iterator()
               {
-                int currIndex = startIndex;
-
-                @Override
-                public boolean hasNext()
+                return new Iterator<ImmutableBitmap>()
                 {
-                  return currIndex < endIndex;
-                }
+                  int currIndex = 0;
 
-                @Override
-                public ImmutableBitmap next()
-                {
-                  while (currIndex < endIndex && !likeMatcher.matchesSuffixOnly(dimValues.get(currIndex))) {
-                    currIndex++;
+                  @Override
+                  public boolean hasNext()
+                  {
+                    return currIndex < matchedDocs.size();
                   }
 
-                  if (currIndex == endIndex) {
-                    return bitmapIndex.getBitmapFactory().makeEmptyImmutableBitmap();
+                  @Override
+                  public ImmutableBitmap next()
+                  {
+                    return bitmapIndex.getBitmap(matchedDocs.get(currIndex++));
                   }
 
-                  return bitmapIndex.getBitmap(currIndex++);
-                }
-
-                @Override
-                public void remove()
-                {
-                  throw new UnsupportedOperationException();
-                }
-              };
+                  @Override
+                  public void remove()
+                  {
+                    throw new UnsupportedOperationException();
+                  }
+                };
+              }
             }
-          }
-      );
+        );
+      } else {
+        final String lower = Strings.nullToEmpty(likeMatcher.getPrefix());
+        final String upper = Strings.nullToEmpty(likeMatcher.getPrefix()) + Character.MAX_VALUE;
+        final int startIndex; // inclusive
+        final int endIndex; // exclusive
+
+        final int lowerFound = bitmapIndex.getIndex(lower);
+        startIndex = lowerFound >= 0 ? lowerFound : -(lowerFound + 1);
+
+        final int upperFound = bitmapIndex.getIndex(upper);
+        endIndex = upperFound >= 0 ? upperFound + 1 : -(upperFound + 1);
+
+        // Union bitmaps for all matching dimension values in range.
+        // Use lazy iterator to allow unioning bitmaps one by one and avoid materializing all of them at once.
+        return selector.getBitmapFactory().union(
+            new Iterable<ImmutableBitmap>()
+            {
+              @Override
+              public Iterator<ImmutableBitmap> iterator()
+              {
+                return new Iterator<ImmutableBitmap>()
+                {
+                  int currIndex = startIndex;
+
+                  @Override
+                  public boolean hasNext()
+                  {
+                    return currIndex < endIndex;
+                  }
+
+                  @Override
+                  public ImmutableBitmap next()
+                  {
+                    while (currIndex < endIndex && !likeMatcher.matchesSuffixOnly(dimValues.get(currIndex))) {
+                      currIndex++;
+                    }
+
+                    if (currIndex == endIndex) {
+                      return bitmapIndex.getBitmapFactory().makeEmptyImmutableBitmap();
+                    }
+
+                    return bitmapIndex.getBitmap(currIndex++);
+                  }
+
+                  @Override
+                  public void remove()
+                  {
+                    throw new UnsupportedOperationException();
+                  }
+                };
+              }
+            }
+        );
+      }
     } else {
       // fallback
       return Filters.matchPredicate(

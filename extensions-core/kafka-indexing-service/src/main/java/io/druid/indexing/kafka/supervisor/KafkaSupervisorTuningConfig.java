@@ -50,7 +50,8 @@ public class KafkaSupervisorTuningConfig extends KafkaTuningConfig
       @JsonProperty("chatThreads") Integer chatThreads,
       @JsonProperty("chatRetries") Long chatRetries,
       @JsonProperty("httpTimeout") Period httpTimeout,
-      @JsonProperty("shutdownTimeout") Period shutdownTimeout
+      @JsonProperty("shutdownTimeout") Period shutdownTimeout,
+      @JsonProperty("useLuceneIndex") Boolean useLuceneIndex
   )
   {
     super(
@@ -63,7 +64,8 @@ public class KafkaSupervisorTuningConfig extends KafkaTuningConfig
         buildV9Directly,
         reportParseExceptions,
         handoffConditionTimeout,
-        resetOffsetAutomatically
+        resetOffsetAutomatically,
+        useLuceneIndex
     );
 
     this.workerThreads = workerThreads;
@@ -122,6 +124,7 @@ public class KafkaSupervisorTuningConfig extends KafkaTuningConfig
            ", chatRetries=" + chatRetries +
            ", httpTimeout=" + httpTimeout +
            ", shutdownTimeout=" + shutdownTimeout +
+           ", useLuceneIndex=" + getUseLuceneIndex() +
            '}';
   }
 

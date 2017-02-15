@@ -44,6 +44,7 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
   private final boolean reportParseExceptions;
   private final long handoffConditionTimeout;
   private final boolean resetOffsetAutomatically;
+  private final boolean useLuceneIndex;
 
   @JsonCreator
   public KafkaTuningConfig(
@@ -56,7 +57,8 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
       @JsonProperty("buildV9Directly") Boolean buildV9Directly,
       @JsonProperty("reportParseExceptions") Boolean reportParseExceptions,
       @JsonProperty("handoffConditionTimeout") Long handoffConditionTimeout,
-      @JsonProperty("resetOffsetAutomatically") Boolean resetOffsetAutomatically
+      @JsonProperty("resetOffsetAutomatically") Boolean resetOffsetAutomatically,
+      @JsonProperty("useLuceneIndex") Boolean useLuceneIndex
   )
   {
     // Cannot be a static because default basePersistDirectory is unique per-instance
@@ -80,6 +82,7 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
     this.resetOffsetAutomatically = resetOffsetAutomatically == null
                                     ? DEFAULT_RESET_OFFSET_AUTOMATICALLY
                                     : resetOffsetAutomatically;
+    this.useLuceneIndex = useLuceneIndex == null ? defaults.getUseLuceneIndex() : useLuceneIndex;;
   }
 
   public static KafkaTuningConfig copyOf(KafkaTuningConfig config)
@@ -94,7 +97,8 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
         config.buildV9Directly,
         config.reportParseExceptions,
         config.handoffConditionTimeout,
-        config.resetOffsetAutomatically
+        config.resetOffsetAutomatically,
+        config.useLuceneIndex
     );
   }
 
@@ -158,6 +162,12 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
     return resetOffsetAutomatically;
   }
 
+  @JsonProperty
+  public boolean getUseLuceneIndex()
+  {
+    return useLuceneIndex;
+  }
+
   public KafkaTuningConfig withBasePersistDirectory(File dir)
   {
     return new KafkaTuningConfig(
@@ -170,7 +180,8 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
         buildV9Directly,
         reportParseExceptions,
         handoffConditionTimeout,
-        resetOffsetAutomatically
+        resetOffsetAutomatically,
+        useLuceneIndex
     );
   }
 
@@ -186,7 +197,8 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
         buildV9Directly,
         reportParseExceptions,
         handoffConditionTimeout,
-        resetOffsetAutomatically
+        resetOffsetAutomatically,
+        useLuceneIndex
     );
   }
 
@@ -233,6 +245,9 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
         : that.basePersistDirectory != null) {
       return false;
     }
+    if (useLuceneIndex != that.useLuceneIndex) {
+      return false;
+    }
     return indexSpec != null ? indexSpec.equals(that.indexSpec) : that.indexSpec == null;
 
   }
@@ -250,6 +265,7 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
     result = 31 * result + (reportParseExceptions ? 1 : 0);
     result = 31 * result + (int) (handoffConditionTimeout ^ (handoffConditionTimeout >>> 32));
     result = 31 * result + (resetOffsetAutomatically ? 1 : 0);
+    result = 31 * result + (useLuceneIndex ? 1 : 0);
     return result;
   }
 
@@ -267,6 +283,7 @@ public class KafkaTuningConfig implements TuningConfig, AppenderatorConfig
            ", reportParseExceptions=" + reportParseExceptions +
            ", handoffConditionTimeout=" + handoffConditionTimeout +
            ", resetOffsetAutomatically=" + resetOffsetAutomatically +
+           ", useLuceneIndex=" + useLuceneIndex +
            '}';
   }
 }

@@ -23,6 +23,8 @@ import io.druid.collections.bitmap.BitmapFactory;
 import io.druid.collections.bitmap.ImmutableBitmap;
 import io.druid.collections.spatial.ImmutableRTree;
 import io.druid.segment.column.BitmapIndex;
+import io.druid.segment.column.DictionaryEncodedColumn;
+import io.druid.segment.column.LuceneIndexEncodedColumn;
 import io.druid.segment.data.Indexed;
 
 /**
@@ -35,4 +37,5 @@ public interface BitmapIndexSelector
   public BitmapIndex getBitmapIndex(String dimension);
   public ImmutableBitmap getBitmapIndex(String dimension, String value);
   public ImmutableRTree getSpatialIndex(String dimension);
+  public LuceneIndexEncodedColumn getLuceneIndexEncodedColumn(String dimension);
 }

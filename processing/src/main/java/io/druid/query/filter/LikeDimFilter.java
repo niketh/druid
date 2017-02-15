@@ -30,6 +30,7 @@ import com.google.common.primitives.Chars;
 import io.druid.java.util.common.StringUtils;
 import io.druid.query.extraction.ExtractionFn;
 import io.druid.segment.filter.LikeFilter;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -90,15 +91,19 @@ public class LikeDimFilter implements DimFilter
     // Regex pattern that describes matching strings.
     private final Pattern pattern;
 
+    private final String regex;
+
     private LikeMatcher(
         final SuffixMatch suffixMatch,
         final String prefix,
-        final Pattern pattern
+        final Pattern pattern,
+        final String regex
     )
     {
       this.suffixMatch = Preconditions.checkNotNull(suffixMatch, "suffixMatch");
       this.prefix = Strings.nullToEmpty(prefix);
       this.pattern = Preconditions.checkNotNull(pattern, "pattern");
+      this.regex = regex;
     }
 
     public static LikeMatcher from(
@@ -136,7 +141,10 @@ public class LikeDimFilter implements DimFilter
         }
       }
 
-      return new LikeMatcher(suffixMatch, prefix.toString(), Pattern.compile(regex.toString()));
+      return new LikeMatcher(
+          suffixMatch, prefix.toString(),
+          Pattern.compile(regex.toString()),
+          StringEscapeUtils.unescapeJava(regex.toString()));
     }
 
     private static void addPatternCharacter(final StringBuilder patternBuilder, final char c)
@@ -221,6 +229,11 @@ public class LikeDimFilter implements DimFilter
           }
         }
       };
+    }
+
+    public String getRegex()
+    {
+      return regex;
     }
 
     public String getPrefix()

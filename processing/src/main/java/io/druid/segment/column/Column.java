@@ -28,6 +28,7 @@ public interface Column
 
   public int getLength();
   public DictionaryEncodedColumn getDictionaryEncoding();
+  public LuceneIndexEncodedColumn getLuceneIndexEncoding();
   public RunLengthColumn getRunLengthColumn();
   public GenericColumn getGenericColumn();
   public ComplexColumn getComplexColumn();

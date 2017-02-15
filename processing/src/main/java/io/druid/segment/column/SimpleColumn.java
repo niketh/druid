@@ -72,6 +72,11 @@ class SimpleColumn implements Column
     return dictionaryEncodedColumn == null ? null : dictionaryEncodedColumn.get();
   }
 
+  @Override public LuceneIndexEncodedColumn getLuceneIndexEncoding()
+  {
+    return null;
+  }
+
   @Override
   public RunLengthColumn getRunLengthColumn()
   {

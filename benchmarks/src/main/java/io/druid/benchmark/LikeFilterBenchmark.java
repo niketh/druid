@@ -34,6 +34,7 @@ import io.druid.query.filter.RegexDimFilter;
 import io.druid.query.filter.SelectorDimFilter;
 import io.druid.query.ordering.StringComparators;
 import io.druid.segment.column.BitmapIndex;
+import io.druid.segment.column.DictionaryEncodedColumn;
 import io.druid.segment.data.BitmapSerdeFactory;
 import io.druid.segment.data.GenericIndexed;
 import io.druid.segment.data.Indexed;
@@ -187,6 +188,11 @@ public class LikeFilterBenchmark
 
       @Override
       public ImmutableRTree getSpatialIndex(String dimension)
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public DictionaryEncodedColumn getEncodedColumn(String dimension)
       {
         throw new UnsupportedOperationException();
       }

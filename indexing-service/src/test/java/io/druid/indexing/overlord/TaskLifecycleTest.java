@@ -652,7 +652,7 @@ public class TaskLifecycleTest
                 mapper
             ),
             new IndexTask.IndexIOConfig(new MockFirehoseFactory(false)),
-            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false)
+            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false, false)
         ),
         mapper,
         null
@@ -710,7 +710,7 @@ public class TaskLifecycleTest
                 mapper
             ),
             new IndexTask.IndexIOConfig(new MockExceptionalFirehoseFactory()),
-            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false)
+            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false, false)
         ),
         mapper,
         null
@@ -1069,7 +1069,7 @@ public class TaskLifecycleTest
                 mapper
             ),
             new IndexTask.IndexIOConfig(new MockFirehoseFactory(false)),
-            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false)
+            new IndexTask.IndexTuningConfig(10000, 10, -1, indexSpec, null, false, false)
         ),
         mapper,
         null
@@ -1190,7 +1190,8 @@ public class TaskLifecycleTest
         0,
         0,
         null,
-        null
+        null,
+        false
     );
     FireDepartment fireDepartment = new FireDepartment(dataSchema, realtimeIOConfig, realtimeTuningConfig);
     return new RealtimeIndexTask(

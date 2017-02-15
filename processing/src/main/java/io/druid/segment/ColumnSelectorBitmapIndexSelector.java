@@ -28,6 +28,7 @@ import io.druid.segment.column.BitmapIndex;
 import io.druid.segment.column.Column;
 import io.druid.segment.column.DictionaryEncodedColumn;
 import io.druid.segment.column.GenericColumn;
+import io.druid.segment.column.LuceneIndexEncodedColumn;
 import io.druid.segment.column.ValueType;
 import io.druid.segment.data.Indexed;
 import io.druid.segment.data.IndexedIterable;
@@ -198,6 +199,16 @@ public class ColumnSelectorBitmapIndexSelector implements BitmapIndexSelector
     }
 
     return column.getSpatialIndex().getRTree();
+  }
+
+  @Override public LuceneIndexEncodedColumn getLuceneIndexEncodedColumn(String dimension)
+  {
+    final Column column = index.getColumn(dimension);
+    if (column == null) {
+      return null;
+    }
+
+    return  column.getLuceneIndexEncoding();
   }
 
   private static boolean columnSupportsFiltering(Column column)

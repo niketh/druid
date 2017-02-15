@@ -376,6 +376,11 @@ public class HadoopDruidIndexerConfig
     return schema.getTuningConfig().getBuildV9Directly();
   }
 
+  public boolean getUseLuceneIndex()
+  {
+    return schema.getTuningConfig().getUseLuceneIndex();
+  }
+
   /**
    * Job instance should have Configuration set (by calling {@link #addJobProperties(Job)}
    * or via injected system properties) before this method is called.  The {@link PathSpec} may

@@ -32,6 +32,7 @@ import io.druid.query.filter.BitmapIndexSelector;
 import io.druid.query.filter.DruidLongPredicate;
 import io.druid.query.filter.DruidPredicateFactory;
 import io.druid.segment.column.BitmapIndex;
+import io.druid.segment.column.DictionaryEncodedColumn;
 import io.druid.segment.data.BitmapSerdeFactory;
 import io.druid.segment.data.GenericIndexed;
 import io.druid.segment.data.Indexed;
@@ -180,6 +181,11 @@ public class DimensionPredicateFilterBenchmark
 
       @Override
       public ImmutableRTree getSpatialIndex(String dimension)
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public DictionaryEncodedColumn getEncodedColumn(String dimension)
       {
         throw new UnsupportedOperationException();
       }

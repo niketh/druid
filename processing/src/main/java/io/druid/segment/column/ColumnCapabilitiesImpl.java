@@ -27,6 +27,8 @@ import io.druid.java.util.common.ISE;
 public class ColumnCapabilitiesImpl implements ColumnCapabilities
 {
   private ValueType type = null;
+
+  private boolean luceneIndexed = false;
   private boolean dictionaryEncoded = false;
   private boolean runLengthEncoded = false;
   private boolean hasInvertedIndexes = false;
@@ -43,6 +45,17 @@ public class ColumnCapabilitiesImpl implements ColumnCapabilities
   public ColumnCapabilitiesImpl setType(ValueType type)
   {
     this.type = type;
+    return this;
+  }
+
+  @Override
+  @JsonProperty
+  public boolean isLuceneIndexed() {
+    return luceneIndexed;
+  }
+
+  public ColumnCapabilitiesImpl setLuceneIndexed(boolean luceneIndexed) {
+    this.luceneIndexed = luceneIndexed;
     return this;
   }
 
@@ -126,6 +139,7 @@ public class ColumnCapabilitiesImpl implements ColumnCapabilities
       throw new ISE("Cannot merge columns of type[%s] and [%s]", type, other.getType());
     }
 
+    this.luceneIndexed |= other.isLuceneIndexed();
     this.dictionaryEncoded |= other.isDictionaryEncoded();
     this.runLengthEncoded |= other.isRunLengthEncoded();
     this.hasInvertedIndexes |= other.hasBitmapIndexes();

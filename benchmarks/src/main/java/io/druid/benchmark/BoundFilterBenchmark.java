@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.druid.segment.column.DictionaryEncodedColumn;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -228,6 +229,11 @@ public class BoundFilterBenchmark
 
       @Override
       public ImmutableRTree getSpatialIndex(String dimension)
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public DictionaryEncodedColumn getEncodedColumn(String dimension)
       {
         throw new UnsupportedOperationException();
       }

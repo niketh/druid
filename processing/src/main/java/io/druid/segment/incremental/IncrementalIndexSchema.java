@@ -37,6 +37,7 @@ public class IncrementalIndexSchema
   private final DimensionsSpec dimensionsSpec;
   private final AggregatorFactory[] metrics;
   private final boolean rollup;
+  private final boolean useLuceneIndex;
 
   public IncrementalIndexSchema(
       long minTimestamp,
@@ -44,7 +45,8 @@ public class IncrementalIndexSchema
       QueryGranularity gran,
       DimensionsSpec dimensionsSpec,
       AggregatorFactory[] metrics,
-      boolean rollup
+      boolean rollup,
+      boolean useLuceneIndex
   )
   {
     this.minTimestamp = minTimestamp;
@@ -53,6 +55,7 @@ public class IncrementalIndexSchema
     this.dimensionsSpec = dimensionsSpec;
     this.metrics = metrics;
     this.rollup = rollup;
+    this.useLuceneIndex = useLuceneIndex;
   }
 
   public long getMinTimestamp()
@@ -85,6 +88,11 @@ public class IncrementalIndexSchema
     return rollup;
   }
 
+  public boolean getUseLuceneIndex()
+  {
+    return useLuceneIndex;
+  }
+
   public static class Builder
   {
     private long minTimestamp;
@@ -93,6 +101,7 @@ public class IncrementalIndexSchema
     private DimensionsSpec dimensionsSpec;
     private AggregatorFactory[] metrics;
     private boolean rollup;
+    private boolean useLuceneIndex;
 
     public Builder()
     {
@@ -101,6 +110,7 @@ public class IncrementalIndexSchema
       this.dimensionsSpec = new DimensionsSpec(null, null, null);
       this.metrics = new AggregatorFactory[]{};
       this.rollup = true;
+      this.useLuceneIndex = false;
     }
 
     public Builder withMinTimestamp(long minTimestamp)
@@ -164,10 +174,16 @@ public class IncrementalIndexSchema
       return this;
     }
 
+    public Builder withLuceneIndex(boolean useLuceneIndex)
+    {
+      this.useLuceneIndex = useLuceneIndex;
+      return this;
+    }
+
     public IncrementalIndexSchema build()
     {
       return new IncrementalIndexSchema(
-          minTimestamp, timestampSpec, gran, dimensionsSpec, metrics, rollup
+          minTimestamp, timestampSpec, gran, dimensionsSpec, metrics, rollup, useLuceneIndex
       );
     }
   }

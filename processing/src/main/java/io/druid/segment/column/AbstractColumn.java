@@ -60,6 +60,12 @@ public abstract class AbstractColumn implements Column
   }
 
   @Override
+  public LuceneIndexEncodedColumn getLuceneIndexEncoding()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public ColumnCapabilities getCapabilities()
   {
     throw new UnsupportedOperationException();

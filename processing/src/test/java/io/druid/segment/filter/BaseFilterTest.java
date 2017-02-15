@@ -32,6 +32,7 @@ import io.druid.java.util.common.Pair;
 import io.druid.java.util.common.guava.Sequence;
 import io.druid.java.util.common.guava.Sequences;
 import io.druid.query.aggregation.Aggregator;
+import io.druid.query.aggregation.AggregatorFactory;
 import io.druid.query.aggregation.CountAggregatorFactory;
 import io.druid.query.aggregation.FilteredAggregatorFactory;
 import io.druid.query.dimension.DefaultDimensionSpec;
@@ -56,6 +57,7 @@ import io.druid.segment.data.ConciseBitmapSerdeFactory;
 import io.druid.segment.data.IndexedInts;
 import io.druid.segment.data.RoaringBitmapSerdeFactory;
 import io.druid.segment.incremental.IncrementalIndex;
+import io.druid.segment.incremental.IncrementalIndexSchema;
 import io.druid.segment.incremental.IncrementalIndexStorageAdapter;
 import org.joda.time.Interval;
 import org.junit.Assert;
@@ -239,23 +241,30 @@ public abstract class BaseFilterTest
         for (Map.Entry<String, Function<IndexBuilder, Pair<StorageAdapter, Closeable>>> finisherEntry : finishers.entrySet()) {
           for (boolean cnf : ImmutableList.of(false, true)) {
             for (boolean optimize : ImmutableList.of(false, true)) {
-              final String testName = String.format(
-                  "bitmaps[%s], indexMerger[%s], finisher[%s], optimize[%s]",
-                  bitmapSerdeFactoryEntry.getKey(),
-                  indexMergerEntry.getKey(),
-                  finisherEntry.getKey(),
-                  optimize
-              );
-              final IndexBuilder indexBuilder = IndexBuilder.create()
-                                                            .indexSpec(new IndexSpec(
-                                                                bitmapSerdeFactoryEntry.getValue(),
-                                                                null,
-                                                                null,
-                                                                null
-                                                            ))
-                                                            .indexMerger(indexMergerEntry.getValue());
+              for(boolean useLuceneIndex : ImmutableList.of(false, true)) {
+                final String testName = String.format(
+                    "bitmaps[%s], indexMerger[%s], finisher[%s], optimize[%s], useLuceneIndex[%s]",
+                    bitmapSerdeFactoryEntry.getKey(),
+                    indexMergerEntry.getKey(),
+                    finisherEntry.getKey(),
+                    optimize,
+                    useLuceneIndex
+                );
+                final IndexBuilder indexBuilder = IndexBuilder.create()
+                    .indexSpec(new IndexSpec(
+                        bitmapSerdeFactoryEntry.getValue(),
+                        null,
+                        null,
+                        null
+                    ))
+                    .indexMerger(indexMergerEntry.getValue())
+                    .schema(new IncrementalIndexSchema.Builder()
+                            .withLuceneIndex(useLuceneIndex)
+                            .withMetrics(new AggregatorFactory[]{new CountAggregatorFactory("count")})
+                            .build());
 
-              constructors.add(new Object[]{testName, indexBuilder, finisherEntry.getValue(), cnf, optimize});
+                constructors.add(new Object[] { testName, indexBuilder, finisherEntry.getValue(), cnf, optimize });
+              }
             }
           }
         }

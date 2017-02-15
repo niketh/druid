@@ -337,6 +337,7 @@ public abstract class IncrementalIndex<AggregatorType> implements Iterable<Row>,
   private final boolean deserializeComplexMetrics;
   private final boolean reportParseExceptions;
   private final Metadata metadata;
+  private final boolean useLuceneIndex;
 
   private final Map<String, MetricDesc> metricDescs;
 
@@ -375,6 +376,7 @@ public abstract class IncrementalIndex<AggregatorType> implements Iterable<Row>,
     this.minTimestamp = incrementalIndexSchema.getMinTimestamp();
     this.gran = incrementalIndexSchema.getGran();
     this.rollup = incrementalIndexSchema.isRollup();
+    this.useLuceneIndex = incrementalIndexSchema.getUseLuceneIndex();
     this.metrics = incrementalIndexSchema.getMetrics();
     this.rowTransformers = new CopyOnWriteArrayList<>();
     this.deserializeComplexMetrics = deserializeComplexMetrics;
@@ -563,6 +565,7 @@ public abstract class IncrementalIndex<AggregatorType> implements Iterable<Row>,
             capabilities = new ColumnCapabilitiesImpl();
             // For schemaless type discovery, assume everything is a String for now, can change later.
             capabilities.setType(ValueType.STRING);
+            capabilities.setLuceneIndexed(useLuceneIndex);
             capabilities.setDictionaryEncoded(true);
             capabilities.setHasBitmapIndexes(true);
             columnCapabilities.put(dimension, capabilities);

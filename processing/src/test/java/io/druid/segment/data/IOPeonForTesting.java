@@ -23,10 +23,12 @@ import com.google.common.collect.Maps;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -58,6 +60,18 @@ class IOPeonForTesting implements IOPeon
     }
 
     return new ByteArrayInputStream(outStream.toByteArray());
+  }
+
+  @Override
+  public File createDir(String filename) throws IOException {
+    File file = File.createTempFile("tmp",filename);
+    file.deleteOnExit();
+    return file;
+  }
+
+  @Override
+  public void addFile(String filename, Path path) {
+    outStreams.put(filename, null);
   }
 
   @Override

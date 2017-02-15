@@ -80,7 +80,8 @@ public class AppenderatorPlumberTest
         0,
         0,
         false,
-        null
+        null,
+        false
     );
 
     this.plumber = new AppenderatorPlumber(appenderatorTester.getSchema(),

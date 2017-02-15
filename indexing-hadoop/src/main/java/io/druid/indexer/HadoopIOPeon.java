@@ -23,6 +23,7 @@ import io.druid.segment.data.IOPeon;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.JobContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,6 +53,16 @@ class HadoopIOPeon implements IOPeon
   public InputStream makeInputStream(String filename) throws IOException
   {
     return Utils.openInputStream(job, new Path(baseDir, filename));
+  }
+
+  @Override
+  public File createDir(String filename) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addFile(String filename, java.nio.file.Path path) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

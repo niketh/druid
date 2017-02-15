@@ -19,9 +19,11 @@
 
 package io.druid.segment.data;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 
 /**
  */
@@ -29,5 +31,7 @@ public interface IOPeon
 {
   public OutputStream makeOutputStream(String filename) throws IOException;
   public InputStream makeInputStream(String filename) throws IOException;
+  public File createDir(String filename) throws IOException;
+  public void addFile(String filename, Path path);
   public void cleanup() throws IOException;
 }

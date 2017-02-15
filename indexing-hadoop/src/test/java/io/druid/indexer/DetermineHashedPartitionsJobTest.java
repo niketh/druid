@@ -164,6 +164,7 @@ public class DetermineHashedPartitionsJobTest
             null,
             null,
             false,
+            false,
             false
         )
     );
