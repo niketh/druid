@@ -1,0 +1,46 @@
+platform: java
+
+shared:
+  notifications:
+    email: flurry-platform@yahoo-inc.com
+
+  build_containers: [oracle-jdk8-current]
+
+  plugins:
+    test_results:
+      enabled: false
+    coverage:
+      enabled: false
+    build_timeout: 240
+    resource: HIGH
+
+  steps:
+    druid_code_build:
+      description: create druid code jars
+      command: mvn -v; mvn -B -Pparallel-test -Dmaven.fork.count=2 deploy
+    compute_druid_version:
+      description: compute the hash for druid version
+      command: >
+        echo $(fgrep '<version>' pom.xml | sed -n 2p | grep -oP '\d+\.\d+\.\d+')-$(date '+%s')-$(git rev-parse --short HEAD)-${BUILD_NUMBER} > druid.version &&
+        if [ ! -s druid.version ]; then echo 'Error: druid.version is empty!' && exit 1; else echo "druid.version is `cat druid.version`"; fi || exit $?
+    set_druid_version:
+      description: set druid jars version
+      command: mvn -B org.codehaus.mojo:versions-maven-plugin:2.1:set -DnewVersion="fluid_`cat druid.version`"
+jobs:
+  pull-request:
+    plugins:
+      test_results:
+        enabled: false
+      coverage:
+        enabled: false
+    order:
+      - init
+      - compute_druid_version
+      - set_druid_version
+      - druid_code_build
+  component:
+    order:
+      - init
+      - compute_druid_version
+      - set_druid_version
+      - druid_code_build
