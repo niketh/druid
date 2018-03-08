@@ -340,18 +340,21 @@ public class CostBalancerStrategy implements BalancerStrategy
     List<ListenableFuture<Pair<Double, ServerHolder>>> futures = Lists.newArrayList();
 
     for (final ServerHolder server : serverHolders) {
-      futures.add(
-          exec.submit(
-              new Callable<Pair<Double, ServerHolder>>()
-              {
-                @Override
-                public Pair<Double, ServerHolder> call() throws Exception
+      // Consider only those servers that are not full
+      if (server.getAvailableSize() > proposalSegment.getSize()) {
+        futures.add(
+            exec.submit(
+                new Callable<Pair<Double, ServerHolder>>()
                 {
-                  return Pair.of(computeCost(proposalSegment, server, includeCurrentServer), server);
+                  @Override
+                  public Pair<Double, ServerHolder> call() throws Exception
+                  {
+                    return Pair.of(computeCost(proposalSegment, server, includeCurrentServer), server);
+                  }
                 }
-              }
-          )
-      );
+            )
+        );
+      }
     }
 
     final ListenableFuture<List<Pair<Double, ServerHolder>>> resultsFuture = Futures.allAsList(futures);
