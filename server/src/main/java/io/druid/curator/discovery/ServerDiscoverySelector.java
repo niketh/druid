@@ -135,7 +135,12 @@ public class ServerDiscoverySelector implements DiscoverySelector<Server>
   @LifecycleStart
   public void start() throws Exception
   {
-    serviceProvider.start();
+    try {
+      serviceProvider.start();
+    } catch () {
+      // Retry
+
+    }
   }
 
   @LifecycleStop
